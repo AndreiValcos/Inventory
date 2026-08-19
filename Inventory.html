@@ -1,0 +1,156 @@
+<html>
+<head>
+<title>Item Management System</title>
+</head>
+<body>
+
+<h1>Item Management System</h1>
+
+Item Name: <input type="text" id="itemName"><br><br>
+Quantity: <input type="text" id="itemQuantity"><br><br>
+Price: <input type="text" id="itemPrice"><br><br>
+
+<button onclick="addItem()">Add Item</button>
+
+<p id="message"></p>
+
+<hr>
+
+<h2>Item Records</h2>
+
+<table border="1">
+  <tr>
+    <th>CTR</th>
+    <th>Item Name</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Total Price</th>
+    <th>Actions</th>
+  </tr>
+  <tbody id="itemTableBody">
+    <tr>
+      <td colspan="6">No item records available.</td>
+    </tr>
+  </tbody>
+  <tr>
+    <td colspan="4"><b>Grand Total</b></td>
+    <td id="grandTotal">0</td>
+    <td></td>
+  </tr>
+</table>
+
+<script>
+
+// array to store the items
+var items = [];
+var counter = 0;
+
+function addItem() {
+
+  // get the values from the text boxes
+  var name = document.getElementById("itemName").value;
+  var quantity = document.getElementById("itemQuantity").value;
+  var price = document.getElementById("itemPrice").value;
+  var message = document.getElementById("message");
+
+  // check if item name is empty
+  if (name == "") {
+    message.innerHTML = "Please enter the item name.";
+    return;
+  }
+
+  // check if quantity is empty
+  if (quantity == "") {
+    message.innerHTML = "Please enter the quantity.";
+    return;
+  }
+
+  // check if price is empty
+  if (price == "") {
+    message.innerHTML = "Please enter the price.";
+    return;
+  }
+
+  // clear message
+  message.innerHTML = "";
+
+  // increase counter
+  counter = counter + 1;
+
+  // calculate total price
+  var total = quantity * price;
+
+  // save item into the array
+  var newItem = {
+    ctr: counter,
+    name: name,
+    quantity: quantity,
+    price: price,
+    total: total
+  };
+
+  items.push(newItem);
+
+  // clear the text boxes
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemQuantity").value = "";
+  document.getElementById("itemPrice").value = "";
+
+  // update the table
+  showItems();
+}
+
+function deleteItem(ctr) {
+
+  var newItems = [];
+
+  // copy all items except the one we want to delete
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].ctr != ctr) {
+      newItems.push(items[i]);
+    }
+  }
+
+  items = newItems;
+
+  showItems();
+}
+
+function showItems() {
+
+  var tableBody = document.getElementById("itemTableBody");
+  var grandTotalCell = document.getElementById("grandTotal");
+
+  // if no items, show message
+  if (items.length == 0) {
+    tableBody.innerHTML = "<tr><td colspan='6'>No item records available.</td></tr>";
+    grandTotalCell.innerHTML = "0";
+    return;
+  }
+
+  var tableHTML = "";
+  var grandTotal = 0;
+
+  // loop through the items array
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    grandTotal = grandTotal + item.total;
+
+    tableHTML = tableHTML + "<tr>";
+    tableHTML = tableHTML + "<td>" + item.ctr + "</td>";
+    tableHTML = tableHTML + "<td>" + item.name + "</td>";
+    tableHTML = tableHTML + "<td>" + item.quantity + "</td>";
+    tableHTML = tableHTML + "<td>" + item.price + "</td>";
+    tableHTML = tableHTML + "<td>" + item.total + "</td>";
+    tableHTML = tableHTML + "<td><button onclick='deleteItem(" + item.ctr + ")'>Delete</button></td>";
+    tableHTML = tableHTML + "</tr>";
+  }
+
+  tableBody.innerHTML = tableHTML;
+  grandTotalCell.innerHTML = grandTotal;
+}
+
+</script>
+
+</body>
+</html>
