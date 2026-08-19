@@ -41,46 +41,37 @@ Price: <input type="text" id="itemPrice"><br><br>
 
 <script>
 
-// array to store the items
 var items = [];
 var counter = 0;
 
 function addItem() {
 
-  // get the values from the text boxes
   var name = document.getElementById("itemName").value;
   var quantity = document.getElementById("itemQuantity").value;
   var price = document.getElementById("itemPrice").value;
   var message = document.getElementById("message");
 
-  // check if item name is empty
   if (name == "") {
     message.innerHTML = "Please enter the item name.";
     return;
   }
 
-  // check if quantity is empty
   if (quantity == "") {
     message.innerHTML = "Please enter the quantity.";
     return;
   }
 
-  // check if price is empty
   if (price == "") {
     message.innerHTML = "Please enter the price.";
     return;
   }
 
-  // clear message
   message.innerHTML = "";
 
-  // increase counter
   counter = counter + 1;
 
-  // calculate total price
   var total = quantity * price;
 
-  // save item into the array
   var newItem = {
     ctr: counter,
     name: name,
@@ -91,12 +82,10 @@ function addItem() {
 
   items.push(newItem);
 
-  // clear the text boxes
   document.getElementById("itemName").value = "";
   document.getElementById("itemQuantity").value = "";
   document.getElementById("itemPrice").value = "";
 
-  // update the table
   showItems();
 }
 
@@ -104,7 +93,6 @@ function deleteItem(ctr) {
 
   var newItems = [];
 
-  // copy all items except the one we want to delete
   for (var i = 0; i < items.length; i++) {
     if (items[i].ctr != ctr) {
       newItems.push(items[i]);
@@ -121,7 +109,6 @@ function showItems() {
   var tableBody = document.getElementById("itemTableBody");
   var grandTotalCell = document.getElementById("grandTotal");
 
-  // if no items, show message
   if (items.length == 0) {
     tableBody.innerHTML = "<tr><td colspan='6'>No item records available.</td></tr>";
     grandTotalCell.innerHTML = "0";
@@ -131,7 +118,6 @@ function showItems() {
   var tableHTML = "";
   var grandTotal = 0;
 
-  // loop through the items array
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
     grandTotal = grandTotal + item.total;
