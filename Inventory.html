@@ -10,7 +10,8 @@ Item Name: <input type="text" id="itemName"><br><br>
 Quantity: <input type="text" id="itemQuantity"><br><br>
 Price: <input type="text" id="itemPrice"><br><br>
 
-<button onclick="addItem()">Add Item</button>
+<button id="addButton" onclick="addItem()">Add Item</button>
+<button id="cancelButton" onclick="cancelUpdate()" style="display:none;">Cancel Update</button>
 
 <p id="message"></p>
 
@@ -18,7 +19,7 @@ Price: <input type="text" id="itemPrice"><br><br>
 
 <h2>Item Records</h2>
 
-<table border="1">
+<table border="1" cellpadding="8">
   <tr>
     <th>CTR</th>
     <th>Item Name</th>
@@ -27,52 +28,53 @@ Price: <input type="text" id="itemPrice"><br><br>
     <th>Total Price</th>
     <th>Actions</th>
   </tr>
+
   <tbody id="itemTableBody">
     <tr>
-      <td colspan="6">No item records available.</td>
+      <td colspan="6" align="center">No item records available.</td>
     </tr>
   </tbody>
+
   <tr>
-    <td colspan="4"><b>Grand Total</b></td>
-    <td id="grandTotal">0</td>
+    <td colspan="4" align="center"><b>Grand Total</b></td>
+    <td id="grandTotal" align="center"><b>0</b></td>
     <td></td>
   </tr>
 </table>
 
 <script>
 
-var items = [];
-var counter = 0;
+let items = [];
+let counter = 10000;
+let updateCtr = 0;
 
 function addItem() {
 
-  var name = document.getElementById("itemName").value;
-  var quantity = document.getElementById("itemQuantity").value;
-  var price = document.getElementById("itemPrice").value;
-  var message = document.getElementById("message");
+  let name = document.getElementById("itemName").value;
+  let quantity = document.getElementById("itemQuantity").value;
+  let price = document.getElementById("itemPrice").value;
+  let message = document.getElementById("message");
 
   if (name == "") {
     message.innerHTML = "Please enter the item name.";
     return;
   }
 
-  if (quantity == "") {
-    message.innerHTML = "Please enter the quantity.";
+  if (quantity == "" || Number(quantity) <= 0) {
+    message.innerHTML = "Quantity must be greater than zero.";
     return;
   }
 
-  if (price == "") {
-    message.innerHTML = "Please enter the price.";
+  if (price == "" || Number(price) <= 0) {
+    message.innerHTML = "Price must be greater than zero.";
     return;
   }
-
-  message.innerHTML = "";
 
   counter = counter + 1;
 
-  var total = quantity * price;
+  let total = quantity * price;
 
-  var newItem = {
+  let newItem = {
     ctr: counter,
     name: name,
     quantity: quantity,
@@ -82,58 +84,179 @@ function addItem() {
 
   items.push(newItem);
 
-  document.getElementById("itemName").value = "";
-  document.getElementById("itemQuantity").value = "";
-  document.getElementById("itemPrice").value = "";
+  message.innerHTML = "Record " + counter + " was added successfully.";
+
+  clearInputs();
 
   showItems();
+}
+
+function prepareUpdate(ctr) {
+
+  for (let i = 0; i < items.length; i++) {
+
+    if (items[i].ctr == ctr) {
+
+      document.getElementById("itemName").value = items[i].name;
+      document.getElementById("itemQuantity").value = items[i].quantity;
+      document.getElementById("itemPrice").value = items[i].price;
+
+    }
+  }
+
+  updateCtr = ctr;
+
+  document.getElementById("addButton").innerHTML = "Save Item";
+  document.getElementById("addButton").onclick = function() {
+    updateItem();
+  };
+
+  document.getElementById("cancelButton").style.display = "inline";
+
+  document.getElementById("message").innerHTML = "";
+}
+
+function updateItem() {
+
+  let name = document.getElementById("itemName").value;
+  let quantity = document.getElementById("itemQuantity").value;
+  let price = document.getElementById("itemPrice").value;
+  let message = document.getElementById("message");
+
+  if (name == "") {
+    message.innerHTML = "Please enter the item name.";
+    return;
+  }
+
+  if (quantity == "" || Number(quantity) <= 0) {
+    message.innerHTML = "Quantity must be greater than zero.";
+    return;
+  }
+
+  if (price == "" || Number(price) <= 0) {
+    message.innerHTML = "Price must be greater than zero.";
+    return;
+  }
+
+  for (let i = 0; i < items.length; i++) {
+
+    if (items[i].ctr == updateCtr) {
+
+      items[i].name = name;
+      items[i].quantity = quantity;
+      items[i].price = price;
+      items[i].total = quantity * price;
+
+    }
+  }
+
+  message.innerHTML = "Record " + updateCtr + " was updated successfully.";
+
+  clearInputs();
+
+  document.getElementById("addButton").innerHTML = "Add Item";
+  document.getElementById("addButton").onclick = function() {
+    addItem();
+  };
+
+  document.getElementById("cancelButton").style.display = "none";
+
+  updateCtr = 0;
+
+  showItems();
+}
+
+function cancelUpdate() {
+
+  clearInputs();
+
+  document.getElementById("addButton").innerHTML = "Add Item";
+  document.getElementById("addButton").onclick = function() {
+    addItem();
+  };
+
+  document.getElementById("cancelButton").style.display = "none";
+
+  document.getElementById("message").innerHTML = "Update cancelled.";
+
+  updateCtr = 0;
 }
 
 function deleteItem(ctr) {
 
-  var newItems = [];
+  let newItems = [];
 
-  for (var i = 0; i < items.length; i++) {
+  for (let i = 0; i < items.length; i++) {
+
     if (items[i].ctr != ctr) {
       newItems.push(items[i]);
     }
+
   }
 
   items = newItems;
 
+  document.getElementById("message").innerHTML = "Record " + ctr + " was deleted successfully.";
+
   showItems();
+}
+
+function clearInputs() {
+
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemQuantity").value = "";
+  document.getElementById("itemPrice").value = "";
 }
 
 function showItems() {
 
-  var tableBody = document.getElementById("itemTableBody");
-  var grandTotalCell = document.getElementById("grandTotal");
+  let tableBody = document.getElementById("itemTableBody");
+  let grandTotalCell = document.getElementById("grandTotal");
 
   if (items.length == 0) {
-    tableBody.innerHTML = "<tr><td colspan='6'>No item records available.</td></tr>";
-    grandTotalCell.innerHTML = "0";
+
+    tableBody.innerHTML = "<tr><td colspan='6' align='center'>No item records available.</td></tr>";
+
+    grandTotalCell.innerHTML = "<b>0</b>";
+
     return;
   }
 
-  var tableHTML = "";
-  var grandTotal = 0;
+  let tableHTML = "";
+  let grandTotal = 0;
 
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i];
+  for (let i = 0; i < items.length; i++) {
+
+    let item = items[i];
+
     grandTotal = grandTotal + item.total;
 
     tableHTML = tableHTML + "<tr>";
-    tableHTML = tableHTML + "<td>" + item.ctr + "</td>";
+
+    tableHTML = tableHTML + "<td align='center'>" + item.ctr + "</td>";
+
     tableHTML = tableHTML + "<td>" + item.name + "</td>";
-    tableHTML = tableHTML + "<td>" + item.quantity + "</td>";
-    tableHTML = tableHTML + "<td>" + item.price + "</td>";
-    tableHTML = tableHTML + "<td>" + item.total + "</td>";
-    tableHTML = tableHTML + "<td><button onclick='deleteItem(" + item.ctr + ")'>Delete</button></td>";
+
+    tableHTML = tableHTML + "<td align='center'>" + item.quantity + "</td>";
+
+    tableHTML = tableHTML + "<td align='center'>" + item.price + "</td>";
+
+    tableHTML = tableHTML + "<td align='center'><b>" + item.total + "</b></td>";
+
+    tableHTML = tableHTML + "<td align='center'>";
+
+    tableHTML = tableHTML + "<button onclick='prepareUpdate(" + item.ctr + ")'>Update</button> ";
+
+    tableHTML = tableHTML + "<button onclick='deleteItem(" + item.ctr + ")'>Delete</button>";
+
+    tableHTML = tableHTML + "</td>";
+
     tableHTML = tableHTML + "</tr>";
   }
 
   tableBody.innerHTML = tableHTML;
-  grandTotalCell.innerHTML = grandTotal;
+
+  grandTotalCell.innerHTML = "<b>" + grandTotal + "</b>";
 }
 
 </script>
